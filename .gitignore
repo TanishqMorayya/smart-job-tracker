@@ -1,0 +1,17 @@
+# Build output
+target/
+**/target/
+
+# Node (frontend, later)
+node_modules/
+dist/
+
+# Secrets and env
+.env
+*.env
+
+# IDE / OS
+.vscode/
+.idea/
+*.iml
+.DS_Store
