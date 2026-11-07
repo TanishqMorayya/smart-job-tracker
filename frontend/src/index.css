@@ -181,3 +181,34 @@ a { color: var(--primary); }
 .badge-offer { background: #d1fae5; color: #065f46; }
 .badge-rejected { background: #fee2e2; color: #991b1b; }
 .badge-withdrawn { background: #f3f4f6; color: #6b7280; }
+
+/* ---------- Lists, filters, tables ---------- */
+a.btn { display: inline-block; text-align: center; text-decoration: none; }
+.page-header-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.page-header .muted { margin: 0; }
+
+.form-field select {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 1rem;
+  background: #fff;
+}
+.form-field select:focus { outline: 2px solid var(--primary); border-color: transparent; }
+
+.filters { margin-bottom: 16px; padding: 16px; }
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0 16px;
+}
+.filters .btn-secondary { margin-top: 0; }
+
+.table-wrap { overflow-x: auto; background: var(--card); border-radius: 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); }
+.table-wrap.dim { opacity: 0.5; transition: opacity 0.15s; }
+.data-table { width: 100%; border-collapse: collapse; min-width: 720px; }
+.data-table th, .data-table td { padding: 12px 14px; text-align: left; border-bottom: 1px solid #f0f1f3; }
+.data-table th { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); background: #fafafa; }
+.data-table tbody tr:hover { background: #f9fafb; }
+.data-table a { color: var(--primary); font-weight: 600; text-decoration: none; }
+.data-table a:hover { text-decoration: underline; }
