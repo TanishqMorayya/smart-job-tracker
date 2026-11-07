@@ -17,6 +17,16 @@ import com.jobtracker.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.jobtracker.dto.response.PageResponse;
+import com.jobtracker.entity.enums.JobType;
+import com.jobtracker.entity.enums.WorkMode;
+import com.jobtracker.repository.ApplicationSpecifications;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+
+import java.util.Map;
+import java.util.TreeSet;
 import java.time.LocalDate;
 
 @Service
@@ -56,6 +66,55 @@ public class ApplicationService {
         applicationRepository.save(app);
         recordHistory(app, null, status, "Application created");
         return ApplicationResponse.from(app);
+    }
+
+    // Only these API names are allowed for sorting (whitelist), mapped to entity fields.
+    private static final Map<String, String> SORT_FIELDS = Map.of(
+            "appliedDate", "appliedDate",
+            "deadline", "deadline",
+            "company", "company.name",
+            "status", "status",
+            "createdAt", "createdAt");
+
+    @Transactional(readOnly = true)
+    public PageResponse<ApplicationResponse> list(String email, String search,
+                                                  ApplicationStatus status, JobType jobType,
+                                                  WorkMode workMode, String location,
+                                                  LocalDate from, LocalDate to,
+                                                  String sortBy, String sortDir,
+                                                  int page, int size) {
+        if (page < 0) {
+            throw new BadRequestException("Page must be 0 or greater");
+        }
+        if (size < 1 || size > 50) {
+            throw new BadRequestException("Size must be between 1 and 50");
+        }
+        if (from != null && to != null && from.isAfter(to)) {
+            throw new BadRequestException("'from' date cannot be after 'to' date");
+        }
+        String field = SORT_FIELDS.get(sortBy);
+        if (field == null) {
+            throw new BadRequestException("Invalid sortBy. Allowed: "
+                    + String.join(", ", new TreeSet<>(SORT_FIELDS.keySet())));
+        }
+        Sort.Direction direction;
+        if ("asc".equalsIgnoreCase(sortDir)) {
+            direction = Sort.Direction.ASC;
+        } else if ("desc".equalsIgnoreCase(sortDir)) {
+            direction = Sort.Direction.DESC;
+        } else {
+            throw new BadRequestException("sortDir must be 'asc' or 'desc'");
+        }
+
+        // id as a tie-breaker keeps page boundaries stable
+        Sort sort = Sort.by(direction, field).and(Sort.by(Sort.Direction.DESC, "id"));
+
+        Page<JobApplication> result = applicationRepository.findAll(
+                ApplicationSpecifications.filter(userId(email), search, status, jobType,
+                        workMode, location, from, to),
+                PageRequest.of(page, size, sort));
+
+        return PageResponse.from(result.map(ApplicationResponse::from));
     }
 
     @Transactional(readOnly = true)
