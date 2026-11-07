@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,4 +37,18 @@ public interface JobApplicationRepository
          + "AND a.status = com.jobtracker.entity.enums.ApplicationStatus.SAVED "
          + "AND a.deadline IS NOT NULL ORDER BY a.deadline ASC")
     List<JobApplication> findSavedWithDeadline(@Param("userId") Long userId, Pageable pageable);
+
+    // Applications per month, based on applied date.
+    @Query("SELECT year(a.appliedDate), month(a.appliedDate), COUNT(a) FROM JobApplication a "
+         + "WHERE a.user.id = :userId AND a.appliedDate >= :from "
+         + "GROUP BY year(a.appliedDate), month(a.appliedDate)")
+    List<Object[]> countByMonth(@Param("userId") Long userId, @Param("from") LocalDate from);
+
+    @Query("SELECT a.jobType, COUNT(a) FROM JobApplication a "
+         + "WHERE a.user.id = :userId GROUP BY a.jobType")
+    List<Object[]> countByJobType(@Param("userId") Long userId);
+
+    @Query("SELECT a.source, COUNT(a) FROM JobApplication a "
+         + "WHERE a.user.id = :userId GROUP BY a.source")
+    List<Object[]> countBySource(@Param("userId") Long userId);
 }
