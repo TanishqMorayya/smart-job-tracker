@@ -259,3 +259,50 @@ a.btn { display: inline-block; text-align: center; text-decoration: none; }
   gap: 6px;
 }
 .inline-box input { padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; }
+
+/* ---------- Application details ---------- */
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-danger:hover:not(:disabled) { background: #991b1b; }
+.back-link { font-size: 0.875rem; text-decoration: none; }
+.page-header-row .btn-row { margin-top: 0; }
+.card h2 { margin: 0 0 14px; font-size: 1.1rem; }
+
+.detail-layout { display: grid; grid-template-columns: 3fr 2fr; gap: 16px; align-items: start; }
+.detail-side { display: flex; flex-direction: column; gap: 16px; }
+@media (max-width: 900px) { .detail-layout { grid-template-columns: 1fr; } }
+
+.detail-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px 20px; }
+.detail-item { display: flex; flex-direction: column; gap: 2px; word-break: break-word; }
+.detail-label { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); font-weight: 600; }
+.notes-block { margin-top: 18px; }
+.notes-block p { margin: 4px 0 0; white-space: pre-wrap; }
+
+.timeline { list-style: none; margin: 0; padding: 0 0 0 8px; border-left: 2px solid #e5e7eb; }
+.timeline-item { position: relative; padding: 0 0 18px 20px; }
+.timeline-item:last-child { padding-bottom: 0; }
+.timeline-dot {
+  position: absolute;
+  left: -14px;
+  top: 4px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 2px solid #fff;
+}
+.timeline-interview .timeline-dot { background: #d97706; }
+.timeline-title { font-weight: 600; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.timeline-desc { margin-top: 4px; font-size: 0.9rem; }
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 50;
+}
+.modal { background: #fff; border-radius: 12px; padding: 24px; max-width: 420px; width: 100%; }
+.modal h3 { margin: 0 0 8px; }
