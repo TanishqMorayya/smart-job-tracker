@@ -71,6 +71,16 @@ public class InterviewService {
                 .stream().map(InterviewResponse::from).toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<InterviewResponse> past(String email, int limit) {
+        if (limit < 1 || limit > 50) {
+            throw new BadRequestException("Limit must be between 1 and 50");
+        }
+        return interviewRepository
+                .findPast(userId(email), LocalDateTime.now(), PageRequest.of(0, limit))
+                .stream().map(InterviewResponse::from).toList();
+    }
+
     private JobApplication findOwnedApplication(String email, Long applicationId) {
         return applicationRepository.findByIdAndUserId(applicationId, userId(email))
                 .orElseThrow(() -> new ResourceNotFoundException("Application not found"));
