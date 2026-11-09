@@ -7,6 +7,8 @@ import com.jobtracker.entity.enums.Source;
 import com.jobtracker.entity.enums.WorkMode;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import com.jobtracker.util.DeadlinePriority;
 import java.time.LocalDateTime;
 
 public class ApplicationResponse {
@@ -22,6 +24,8 @@ public class ApplicationResponse {
     private String jobUrl;
     private LocalDate appliedDate;
     private LocalDate deadline;
+    private DeadlinePriority deadlinePriority;
+    private Long daysLeft;
     private ApplicationStatus status;
     private Source source;
     private String resumeUsed;
@@ -43,6 +47,15 @@ public class ApplicationResponse {
         r.jobUrl = a.getJobUrl();
         r.appliedDate = a.getAppliedDate();
         r.deadline = a.getDeadline();
+        // Only open applications get a deadline priority; a finished one is never "overdue".
+        boolean open = a.getStatus() != ApplicationStatus.OFFER
+                && a.getStatus() != ApplicationStatus.REJECTED
+                && a.getStatus() != ApplicationStatus.WITHDRAWN;
+        if (open && a.getDeadline() != null) {
+            LocalDate today = LocalDate.now();
+            r.deadlinePriority = DeadlinePriority.of(a.getDeadline(), today);
+            r.daysLeft = ChronoUnit.DAYS.between(today, a.getDeadline());
+        }
         r.status = a.getStatus();
         r.source = a.getSource();
         r.resumeUsed = a.getResumeUsed();
@@ -63,6 +76,8 @@ public class ApplicationResponse {
     public String getJobUrl() { return jobUrl; }
     public LocalDate getAppliedDate() { return appliedDate; }
     public LocalDate getDeadline() { return deadline; }
+    public DeadlinePriority getDeadlinePriority() { return deadlinePriority; }
+    public Long getDaysLeft() { return daysLeft; }
     public ApplicationStatus getStatus() { return status; }
     public Source getSource() { return source; }
     public String getResumeUsed() { return resumeUsed; }
