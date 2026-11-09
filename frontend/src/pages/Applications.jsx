@@ -142,6 +142,7 @@ export default function Applications() {
                 <th>Status</th>
                 <th>Applied</th>
                 <th>Deadline</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -154,6 +155,7 @@ export default function Applications() {
                   <td><StatusBadge status={a.status} /></td>
                   <td>{formatDate(a.appliedDate)}</td>
                   <td>{formatDate(a.deadline)}</td>
+                  <td><Link to={`/applications/${a.id}/edit`}>Edit</Link></td>
                 </tr>
               ))}
             </tbody>

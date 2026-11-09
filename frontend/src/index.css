@@ -212,3 +212,50 @@ a.btn { display: inline-block; text-align: center; text-decoration: none; }
 .data-table tbody tr:hover { background: #f9fafb; }
 .data-table a { color: var(--primary); font-weight: 600; text-decoration: none; }
 .data-table a:hover { text-decoration: underline; }
+
+/* ---------- Application form ---------- */
+.form-field textarea {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  resize: vertical;
+}
+.form-field textarea:focus { outline: 2px solid var(--primary); border-color: transparent; }
+.form-field select.invalid, .form-field textarea.invalid { border-color: var(--danger); }
+
+.form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0 20px; }
+.span-2 { grid-column: span 2; }
+@media (max-width: 700px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .span-2 { grid-column: span 1; }
+}
+
+.btn-row { display: flex; gap: 10px; margin-top: 8px; }
+.btn-row .btn-secondary { margin-top: 0; }
+.small { font-size: 0.85rem; margin: 4px 0 0; }
+
+.link-btn {
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 14px;
+}
+.link-btn:hover { text-decoration: underline; }
+
+.inline-box {
+  background: #f9fafb;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.inline-box input { padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; }

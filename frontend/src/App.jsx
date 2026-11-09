@@ -5,6 +5,7 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
 import Applications from './pages/Applications'
+import ApplicationForm from './pages/ApplicationForm'
 import Companies from './pages/Companies'
 import Interviews from './pages/Interviews'
 import Profile from './pages/Profile'
@@ -18,6 +19,8 @@ export default function App() {
         <Route element={<AppLayout />}>
           <Route path="/" element={<Dashboard />} />
           <Route path="/applications" element={<Applications />} />
+          <Route path="/applications/new" element={<ApplicationForm />} />
+          <Route path="/applications/:id/edit" element={<ApplicationForm />} />
           <Route path="/companies" element={<Companies />} />
           <Route path="/interviews" element={<Interviews />} />
           <Route path="/profile" element={<Profile />} />
