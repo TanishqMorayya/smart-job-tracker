@@ -306,3 +306,20 @@ a.btn { display: inline-block; text-align: center; text-decoration: none; }
 }
 .modal { background: #fff; border-radius: 12px; padding: 24px; max-width: 420px; width: 100%; }
 .modal h3 { margin: 0 0 8px; }
+
+/* ---------- Companies ---------- */
+.search-card .form-field { margin-bottom: 0; max-width: 360px; }
+.modal-scroll { max-height: 90vh; overflow-y: auto; }
+.row-actions { white-space: nowrap; text-align: right; }
+.link-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-left: 12px;
+  color: var(--primary);
+  font: inherit;
+  cursor: pointer;
+}
+.link-btn:first-child { margin-left: 0; }
+.link-btn:hover { text-decoration: underline; }
+.link-danger { color: var(--danger); }
