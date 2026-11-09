@@ -363,3 +363,6 @@ a.btn { display: inline-block; text-align: center; text-decoration: none; }
 .interview-item:first-child { border-top: none; padding-top: 0; }
 .interview-title { font-weight: 600; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .interview-main { min-width: 0; word-break: break-word; }
+
+/* ---------- Profile ---------- */
+.profile-card { max-width: 480px; }

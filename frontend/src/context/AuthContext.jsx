@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { AuthContext } from './authContext'
 import { tokenStorage } from '../api/axiosClient'
 import * as authApi from '../api/authApi'
+import * as userApi from '../api/userApi'
 
 const USER_KEY = 'jt_user'
 
@@ -34,14 +35,20 @@ export function AuthProvider({ children }) {
     [saveSession],
   )
 
+  // The backend returns a fresh token because the JWT subject is the email.
+  const updateProfile = useCallback(
+    async (details) => saveSession(await userApi.updateProfile(details)),
+    [saveSession],
+  )
+
   const logout = useCallback(() => {
     tokenStorage.clear()
     setUser(null)
   }, [])
 
   const value = useMemo(
-    () => ({ user, isAuthenticated: Boolean(user), login, register, logout }),
-    [user, login, register, logout],
+    () => ({ user, isAuthenticated: Boolean(user), login, register, logout, updateProfile }),
+    [user, login, register, logout, updateProfile],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
