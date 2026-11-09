@@ -4,6 +4,7 @@ import { listApplications } from '../api/applicationApi'
 import { parseError } from '../api/axiosClient'
 import { useDebounce } from '../hooks/useDebounce'
 import StatusBadge from '../components/common/StatusBadge'
+import PriorityBadge from '../components/common/PriorityBadge'
 import Spinner from '../components/common/Spinner'
 import EmptyState from '../components/common/EmptyState'
 import ErrorMessage from '../components/common/ErrorMessage'
@@ -154,7 +155,7 @@ export default function Applications() {
                   <td>{a.location || '-'}</td>
                   <td><StatusBadge status={a.status} /></td>
                   <td>{formatDate(a.appliedDate)}</td>
-                  <td>{formatDate(a.deadline)}</td>
+                  <td>{formatDate(a.deadline)} <PriorityBadge priority={a.deadlinePriority} /></td>
                   <td><Link to={`/applications/${a.id}/edit`}>Edit</Link></td>
                 </tr>
               ))}

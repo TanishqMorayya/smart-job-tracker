@@ -4,6 +4,7 @@ import { deleteApplication, getApplication, getTimeline } from '../api/applicati
 import { deleteInterview, listInterviewsForApplication } from '../api/interviewApi'
 import { parseError } from '../api/axiosClient'
 import StatusBadge from '../components/common/StatusBadge'
+import PriorityBadge from '../components/common/PriorityBadge'
 import Spinner from '../components/common/Spinner'
 import ErrorMessage from '../components/common/ErrorMessage'
 import ConfirmDialog from '../components/common/ConfirmDialog'
@@ -134,7 +135,7 @@ export default function ApplicationDetails() {
             <Detail label="Salary / CTC">{a.salary}</Detail>
             <Detail label="Source">{a.source && labelOf(SOURCES, a.source)}</Detail>
             <Detail label="Applied date">{a.appliedDate && formatDate(a.appliedDate)}</Detail>
-            <Detail label="Deadline">{a.deadline && formatDate(a.deadline)}</Detail>
+            <Detail label="Deadline">{a.deadline && (<>{formatDate(a.deadline)} <PriorityBadge priority={a.deadlinePriority} /></>)}</Detail>
             <Detail label="Resume used">{a.resumeUsed}</Detail>
             <Detail label="Job link">
               {a.jobUrl && (
