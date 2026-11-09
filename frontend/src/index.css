@@ -385,3 +385,8 @@ a.btn { display: inline-block; text-align: center; text-decoration: none; }
 .priority-overdue { background: var(--danger-bg); color: var(--danger); }
 .priority-due_soon { background: #fef3c7; color: #92400e; }
 .priority-upcoming { background: var(--info-bg); color: var(--info); }
+
+/* ---------- Dashboard charts and funnel ---------- */
+.chart-small { height: 220px; }
+.funnel-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; }
+.funnel-grid .stat-card { box-shadow: none; border: 1px solid var(--border); }

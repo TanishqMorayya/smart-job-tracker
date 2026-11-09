@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { getStatusDistribution, getSummary } from '../api/dashboardApi'
+import {
+  getByJobType, getBySource, getFunnel, getMonthly, getStatusDistribution, getSummary,
+} from '../api/dashboardApi'
 import { parseError } from '../api/axiosClient'
 import { useAuth } from '../hooks/useAuth'
 import Spinner from '../components/common/Spinner'
@@ -8,7 +10,9 @@ import EmptyState from '../components/common/EmptyState'
 import ErrorMessage from '../components/common/ErrorMessage'
 import StatCard from '../components/common/StatCard'
 import StatusChart from '../components/applications/StatusChart'
-import { INTERVIEW_ROUNDS, labelOf } from '../utils/constants'
+import MonthlyChart from '../components/applications/MonthlyChart'
+import BreakdownChart from '../components/applications/BreakdownChart'
+import { INTERVIEW_ROUNDS, JOB_TYPES, SOURCES, labelOf } from '../utils/constants'
 import { formatDate, formatDateTime } from '../utils/format'
 
 const PRIORITY_LABELS = { OVERDUE: 'Overdue', DUE_SOON: 'Due soon', UPCOMING: 'Upcoming' }
@@ -23,19 +27,25 @@ function daysText(daysLeft) {
 export default function Dashboard() {
   const { user } = useAuth()
   const [reloadCount, setReloadCount] = useState(0)
-  const [result, setResult] = useState({ key: -1, summary: null, distribution: [], error: '' })
+  const [result, setResult] = useState({ key: -1, data: null, error: '' })
 
   useEffect(() => {
     let cancelled = false
 
-    Promise.all([getSummary(), getStatusDistribution()])
-      .then(([summary, distribution]) => {
-        if (!cancelled) setResult({ key: reloadCount, summary, distribution, error: '' })
+    Promise.all([
+      getSummary(), getStatusDistribution(), getMonthly(), getByJobType(), getBySource(), getFunnel(),
+    ])
+      .then(([summary, distribution, monthly, byJobType, bySource, funnel]) => {
+        if (!cancelled) {
+          setResult({
+            key: reloadCount,
+            data: { summary, distribution, monthly, byJobType, bySource, funnel },
+            error: '',
+          })
+        }
       })
       .catch((err) => {
-        if (!cancelled) {
-          setResult({ key: reloadCount, summary: null, distribution: [], error: parseError(err).message })
-        }
+        if (!cancelled) setResult({ key: reloadCount, data: null, error: parseError(err).message })
       })
 
     return () => {
@@ -68,7 +78,7 @@ export default function Dashboard() {
     )
   }
 
-  const { summary: s, distribution } = result
+  const { summary: s, distribution, monthly, byJobType, bySource, funnel } = result.data
 
   if (s.totalApplications === 0) {
     return (
@@ -97,6 +107,35 @@ export default function Dashboard() {
       <div className="card dash-section">
         <h2>Applications by status</h2>
         <StatusChart distribution={distribution} />
+      </div>
+
+      <div className="card dash-section">
+        <h2>Funnel</h2>
+        <div className="funnel-grid">
+          <StatCard label="Submitted" value={funnel.submitted} />
+          <StatCard label="Interviewed" value={funnel.interviewed}
+            hint={`${funnel.applicationToInterviewRate}% of submitted`} />
+          <StatCard label="Offered" value={funnel.offered}
+            hint={`${funnel.interviewToOfferRate}% of interviewed`} />
+          <StatCard label="Overall offer rate" value={`${funnel.overallOfferRate}%`}
+            hint="Offers / submitted" />
+        </div>
+      </div>
+
+      <div className="card dash-section">
+        <h2>Applications per month</h2>
+        <MonthlyChart items={monthly} />
+      </div>
+
+      <div className="dashboard-grid dash-section">
+        <div className="card">
+          <h2>By job type</h2>
+          <BreakdownChart items={byJobType} options={JOB_TYPES} />
+        </div>
+        <div className="card">
+          <h2>By source</h2>
+          <BreakdownChart items={bySource} options={SOURCES} />
+        </div>
       </div>
 
       <div className="dashboard-grid">
