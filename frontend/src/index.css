@@ -348,3 +348,18 @@ a.btn { display: inline-block; text-align: center; text-decoration: none; }
 .result-failed { background: var(--danger-bg); color: var(--danger); }
 .result-pending { background: var(--info-bg); color: var(--info); }
 .result-rescheduled { background: #fef3c7; color: #92400e; }
+
+/* ---------- Interviews section on details page ---------- */
+.card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.card-head h2 { margin: 0; }
+.interview-list { list-style: none; margin: 0; padding: 0; }
+.interview-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid #e5e7eb;
+}
+.interview-item:first-child { border-top: none; padding-top: 0; }
+.interview-title { font-weight: 600; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.interview-main { min-width: 0; word-break: break-word; }

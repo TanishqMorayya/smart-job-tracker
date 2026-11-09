@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { deleteApplication, getApplication, getTimeline } from '../api/applicationApi'
+import { deleteInterview, listInterviewsForApplication } from '../api/interviewApi'
 import { parseError } from '../api/axiosClient'
 import StatusBadge from '../components/common/StatusBadge'
 import Spinner from '../components/common/Spinner'
@@ -8,6 +9,8 @@ import ErrorMessage from '../components/common/ErrorMessage'
 import ConfirmDialog from '../components/common/ConfirmDialog'
 import Timeline from '../components/applications/Timeline'
 import StatusChanger from '../components/applications/StatusChanger'
+import InterviewsSection from '../components/applications/InterviewsSection'
+import InterviewForm from '../components/applications/InterviewForm'
 import { JOB_TYPES, SOURCES, WORK_MODES, labelOf } from '../utils/constants'
 import { formatDate } from '../utils/format'
 
@@ -25,7 +28,12 @@ export default function ApplicationDetails() {
   const navigate = useNavigate()
 
   const [reloadCount, setReloadCount] = useState(0)
-  const [result, setResult] = useState({ key: '', application: null, timeline: [], error: '' })
+  const [result, setResult] = useState({ key: '', application: null, timeline: [], interviews: [], error: '' })
+  const [interviewModal, setInterviewModal] = useState(null)
+  const [interviewDelete, setInterviewDelete] = useState(null)
+  const [interviewBusy, setInterviewBusy] = useState(false)
+  const [interviewError, setInterviewError] = useState('')
+  const [interviewNotice, setInterviewNotice] = useState('')
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState('')
@@ -35,13 +43,13 @@ export default function ApplicationDetails() {
   useEffect(() => {
     let cancelled = false
 
-    Promise.all([getApplication(id), getTimeline(id)])
-      .then(([application, timeline]) => {
-        if (!cancelled) setResult({ key: queryKey, application, timeline, error: '' })
+    Promise.all([getApplication(id), getTimeline(id), listInterviewsForApplication(id)])
+      .then(([application, timeline, interviews]) => {
+        if (!cancelled) setResult({ key: queryKey, application, timeline, interviews, error: '' })
       })
       .catch((err) => {
         if (!cancelled) {
-          setResult({ key: queryKey, application: null, timeline: [], error: parseError(err).message })
+          setResult({ key: queryKey, application: null, timeline: [], interviews: [], error: parseError(err).message })
         }
       })
 
@@ -60,6 +68,29 @@ export default function ApplicationDetails() {
       setDeleteError(parseError(err).message)
       setConfirmDelete(false)
       setDeleting(false)
+    }
+  }
+
+  const handleInterviewSaved = (message) => {
+    setInterviewModal(null)
+    setInterviewError('')
+    setInterviewNotice(message)
+    setReloadCount((c) => c + 1)
+  }
+
+  const handleInterviewDelete = async () => {
+    setInterviewBusy(true)
+    setInterviewError('')
+    setInterviewNotice('')
+    try {
+      await deleteInterview(interviewDelete.id)
+      setInterviewNotice('Interview deleted')
+      setReloadCount((c) => c + 1)
+    } catch (err) {
+      setInterviewError(parseError(err).message)
+    } finally {
+      setInterviewDelete(null)
+      setInterviewBusy(false)
     }
   }
 
@@ -125,12 +156,31 @@ export default function ApplicationDetails() {
             <StatusChanger applicationId={a.id} currentStatus={a.status}
               onChanged={() => setReloadCount((c) => c + 1)} />
           </div>
+          <ErrorMessage message={interviewError} />
+          {interviewNotice && <div className="alert alert-info" role="status">{interviewNotice}</div>}
+          <InterviewsSection interviews={result.interviews}
+            onAdd={() => setInterviewModal({ interview: null })}
+            onEdit={(i) => setInterviewModal({ interview: i })}
+            onDelete={setInterviewDelete} />
           <div className="card">
             <h2>Timeline</h2>
             <Timeline events={result.timeline} />
           </div>
         </div>
       </div>
+
+      {interviewModal && (
+        <InterviewForm key={interviewModal.interview ? interviewModal.interview.id : 'new'}
+          applicationId={a.id} interview={interviewModal.interview}
+          onSaved={handleInterviewSaved} onCancel={() => setInterviewModal(null)} />
+      )}
+
+      {interviewDelete && (
+        <ConfirmDialog title="Delete this interview?"
+          message="This round will be removed from the application and its timeline."
+          confirmLabel="Delete" busyLabel="Deleting..." busy={interviewBusy}
+          onConfirm={handleInterviewDelete} onCancel={() => setInterviewDelete(null)} />
+      )}
 
       {confirmDelete && (
         <ConfirmDialog title="Delete this application?"
