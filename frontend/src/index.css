@@ -366,3 +366,22 @@ a.btn { display: inline-block; text-align: center; text-decoration: none; }
 
 /* ---------- Profile ---------- */
 .profile-card { max-width: 480px; }
+
+/* ---------- Dashboard ---------- */
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 16px; }
+.stat-card { display: flex; flex-direction: column; gap: 4px; }
+.stat-label { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); font-weight: 600; }
+.stat-value { font-size: 1.8rem; font-weight: 700; }
+.stat-hint { margin: 0; }
+.dash-section { margin-bottom: 16px; }
+.chart-box { width: 100%; height: 280px; }
+.dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+@media (max-width: 900px) { .dashboard-grid { grid-template-columns: 1fr; } }
+.dash-list { list-style: none; margin: 0; padding: 0; }
+.dash-item { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid #e5e7eb; }
+.dash-item:first-child { border-top: none; padding-top: 0; }
+.dash-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; text-align: right; }
+.priority-tag { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 0.8rem; font-weight: 600; }
+.priority-overdue { background: var(--danger-bg); color: var(--danger); }
+.priority-due_soon { background: #fef3c7; color: #92400e; }
+.priority-upcoming { background: var(--info-bg); color: var(--info); }
