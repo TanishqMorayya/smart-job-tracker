@@ -420,3 +420,7 @@ a.btn { display: inline-block; text-align: center; text-decoration: none; }
   font-weight: 600;
 }
 .tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+/* ---------- Profile ---------- */
+.profile-layout { display: flex; flex-direction: column; gap: 16px; max-width: 520px; }
+.alert-success { background: #d1fae5; color: #065f46; }
