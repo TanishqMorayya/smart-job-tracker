@@ -424,3 +424,58 @@ a.btn { display: inline-block; text-align: center; text-decoration: none; }
 /* ---------- Profile ---------- */
 .profile-layout { display: flex; flex-direction: column; gap: 16px; max-width: 520px; }
 .alert-success { background: #d1fae5; color: #065f46; }
+
+/* ---------- Dashboard ---------- */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.stat-card {
+  background: var(--card);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-left: 4px solid var(--primary);
+}
+.stat-card.stat-good { border-left-color: #10b981; }
+.stat-card.stat-bad { border-left-color: #ef4444; }
+.stat-label { font-size: 0.8rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
+.stat-value { font-size: 1.8rem; font-weight: 700; }
+.stat-hint { font-size: 0.78rem; color: var(--muted); }
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+@media (max-width: 420px) { .dashboard-grid { grid-template-columns: 1fr; } }
+
+.funnel-list { list-style: none; margin: 0; padding: 0; }
+.funnel-list li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  padding: 10px 0;
+  border-bottom: 1px solid #f0f1f3;
+  gap: 2px 12px;
+}
+.funnel-list li:last-child { border-bottom: none; }
+.funnel-list strong { font-size: 1.3rem; text-align: right; }
+.funnel-list .small { grid-column: 1 / -1; margin: 0; }
+
+.mini-list { list-style: none; margin: 0; padding: 0; }
+.mini-list li { padding: 10px 0; border-bottom: 1px solid #f0f1f3; display: flex; flex-direction: column; gap: 2px; }
+.mini-list li:last-child { border-bottom: none; }
+.mini-list a { color: var(--primary); font-weight: 600; text-decoration: none; }
+.mini-list a:hover { text-decoration: underline; }
+.mini-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+
+.badge-priority-overdue { background: #fee2e2; color: #991b1b; }
+.badge-priority-due_soon { background: #fef3c7; color: #92400e; }
+.badge-priority-upcoming { background: #dbeafe; color: #1e40af; }
+.badge-priority-no_deadline { background: #f3f4f6; color: #6b7280; }
