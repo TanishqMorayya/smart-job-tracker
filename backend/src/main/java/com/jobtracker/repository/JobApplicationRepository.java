@@ -51,4 +51,15 @@ public interface JobApplicationRepository
     @Query("SELECT a.source, COUNT(a) FROM JobApplication a "
          + "WHERE a.user.id = :userId GROUP BY a.source")
     List<Object[]> countBySource(@Param("userId") Long userId);
+
+    // Same company and same job title (ignoring case and surrounding spaces), for the duplicate warning.
+    @Query("SELECT a FROM JobApplication a JOIN FETCH a.company "
+         + "WHERE a.user.id = :userId AND a.company.id = :companyId "
+         + "AND LOWER(TRIM(a.jobTitle)) = LOWER(TRIM(:jobTitle)) "
+         + "AND (:excludeId IS NULL OR a.id <> :excludeId) "
+         + "ORDER BY a.createdAt DESC")
+    List<JobApplication> findDuplicates(@Param("userId") Long userId,
+                                        @Param("companyId") Long companyId,
+                                        @Param("jobTitle") String jobTitle,
+                                        @Param("excludeId") Long excludeId);
 }

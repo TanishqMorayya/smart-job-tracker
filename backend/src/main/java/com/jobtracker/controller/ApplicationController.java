@@ -52,6 +52,15 @@ public class ApplicationController {
                 .body(applicationService.create(auth.getName(), request));
     }
 
+    @GetMapping("/check-duplicate")
+    public java.util.List<ApplicationResponse> checkDuplicate(
+            Authentication auth,
+            @RequestParam Long companyId,
+            @RequestParam String jobTitle,
+            @RequestParam(required = false) Long excludeId) {
+        return applicationService.checkDuplicates(auth.getName(), companyId, jobTitle, excludeId);
+    }
+
     @GetMapping("/{id}")
     public ApplicationResponse get(Authentication auth, @PathVariable Long id) {
         return applicationService.get(auth.getName(), id);
