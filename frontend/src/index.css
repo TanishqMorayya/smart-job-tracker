@@ -390,3 +390,33 @@ a.btn { display: inline-block; text-align: center; text-decoration: none; }
 .chart-small { height: 220px; }
 .funnel-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; }
 .funnel-grid .stat-card { box-shadow: none; border: 1px solid var(--border); }
+
+/* ---------- Companies ---------- */
+.modal-form { max-width: 480px; }
+.row-actions { display: flex; gap: 14px; }
+.row-actions .link-btn { margin-bottom: 0; }
+.link-btn.danger { color: var(--danger); }
+
+/* ---------- Interviews ---------- */
+.section-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.section-head h2 { margin: 0; }
+.interview-list { list-style: none; margin: 0; padding: 0; }
+.interview-item { padding: 12px 0; border-bottom: 1px solid #f0f1f3; display: flex; flex-direction: column; gap: 4px; }
+.interview-item:last-child { border-bottom: none; }
+.interview-main { display: flex; gap: 8px; align-items: center; }
+
+.badge-result-pending { background: #fef3c7; color: #92400e; }
+.badge-result-passed { background: #d1fae5; color: #065f46; }
+.badge-result-failed { background: #fee2e2; color: #991b1b; }
+.badge-result-rescheduled { background: #ede9fe; color: #5b21b6; }
+
+.tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+.tab {
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }

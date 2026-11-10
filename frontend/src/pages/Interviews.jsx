@@ -1,167 +1,164 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { deleteInterview, listPastInterviews, listUpcomingInterviews } from '../api/interviewApi'
+import { deleteInterview, listAllInterviews } from '../api/interviewApi'
 import { parseError } from '../api/axiosClient'
-import Spinner from '../components/common/Spinner'
+import InterviewFormModal from '../components/interviews/InterviewFormModal'
+import ConfirmDialog from '../components/common/ConfirmDialog'
 import EmptyState from '../components/common/EmptyState'
 import ErrorMessage from '../components/common/ErrorMessage'
-import ConfirmDialog from '../components/common/ConfirmDialog'
-import InterviewForm from '../components/applications/InterviewForm'
-import { INTERVIEW_MODES, INTERVIEW_ROUNDS, INTERVIEW_RESULTS, labelOf } from '../utils/constants'
+import ResultBadge from '../components/common/ResultBadge'
+import Spinner from '../components/common/Spinner'
+import { INTERVIEW_MODES, INTERVIEW_ROUNDS, labelOf } from '../utils/constants'
 import { formatDateTime } from '../utils/format'
 
-const LIMIT = 50 // the backend allows 1 to 50
-
-function InterviewTable({ rows, onEdit, onDelete }) {
-  return (
-    <div className="table-wrap">
-      <table className="data-table">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Company</th>
-            <th>Job title</th>
-            <th>Round</th>
-            <th>Mode</th>
-            <th>Interviewer</th>
-            <th>Result</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((i) => (
-            <tr key={i.id}>
-              <td>{formatDateTime(i.interviewDate)}</td>
-              <td>{i.companyName}</td>
-              <td><Link to={`/applications/${i.applicationId}`}>{i.jobTitle}</Link></td>
-              <td>{labelOf(INTERVIEW_ROUNDS, i.round)}</td>
-              <td>{i.mode ? labelOf(INTERVIEW_MODES, i.mode) : '-'}</td>
-              <td>{i.interviewer || '-'}</td>
-              <td>
-                <span className={`result-tag result-${i.result.toLowerCase()}`}>
-                  {labelOf(INTERVIEW_RESULTS, i.result)}
-                </span>
-              </td>
-              <td className="row-actions">
-                <button className="link-btn" onClick={() => onEdit(i)}>Edit</button>
-                <button className="link-btn link-danger" onClick={() => onDelete(i)}>Delete</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  )
-}
+const VIEWS = [
+  { value: 'upcoming', label: 'Upcoming' },
+  { value: 'past', label: 'Past' },
+  { value: 'all', label: 'All' },
+]
 
 export default function Interviews() {
+  const [view, setView] = useState('upcoming')
   const [reloadCount, setReloadCount] = useState(0)
-  const [result, setResult] = useState({ key: -1, upcoming: null, past: null, error: '' })
-
-  const [editTarget, setEditTarget] = useState(null)
-  const [deleteTarget, setDeleteTarget] = useState(null)
+  // fetchedAt is the time the list was loaded: it decides what is "upcoming".
+  const [result, setResult] = useState({ key: '', data: null, fetchedAt: 0, error: '' })
+  const [editing, setEditing] = useState(null)
+  const [toDelete, setToDelete] = useState(null)
   const [deleting, setDeleting] = useState(false)
-  const [pageError, setPageError] = useState('')
-  const [notice, setNotice] = useState('')
+  const [deleteError, setDeleteError] = useState('')
+
+  const queryKey = String(reloadCount)
 
   useEffect(() => {
     let cancelled = false
 
-    Promise.all([listUpcomingInterviews(LIMIT), listPastInterviews(LIMIT)])
-      .then(([upcoming, past]) => {
-        if (!cancelled) setResult({ key: reloadCount, upcoming, past, error: '' })
+    listAllInterviews()
+      .then((data) => {
+        if (!cancelled) setResult({ key: queryKey, data, fetchedAt: Date.now(), error: '' })
       })
       .catch((err) => {
         if (!cancelled) {
-          setResult({ key: reloadCount, upcoming: null, past: null, error: parseError(err).message })
+          setResult({ key: queryKey, data: null, fetchedAt: 0, error: parseError(err).message })
         }
       })
 
     return () => {
       cancelled = true
     }
-  }, [reloadCount])
+  }, [queryKey])
 
   const reload = () => setReloadCount((c) => c + 1)
-  const loading = result.key !== reloadCount
-
-  const handleSaved = (message) => {
-    setEditTarget(null)
-    setPageError('')
-    setNotice(message)
-    reload()
-  }
+  const loading = result.key !== queryKey
+  const failed = !loading && result.error
+  const all = result.data
 
   const handleDelete = async () => {
     setDeleting(true)
-    setPageError('')
-    setNotice('')
+    setDeleteError('')
     try {
-      await deleteInterview(deleteTarget.id)
-      setNotice('Interview deleted')
+      await deleteInterview(toDelete.id)
+      setToDelete(null)
       reload()
     } catch (err) {
-      setPageError(parseError(err).message)
+      setDeleteError(parseError(err).message)
+      setToDelete(null)
     } finally {
-      setDeleteTarget(null)
       setDeleting(false)
     }
   }
 
   let body
-  if (loading && !result.upcoming) {
-    body = <Spinner label="Loading interviews..." />
-  } else if (result.error) {
+  if (failed) {
     body = (
       <div className="card">
         <ErrorMessage message={result.error} />
         <button className="btn btn-secondary btn-sm" onClick={reload}>Try again</button>
       </div>
     )
+  } else if (!all) {
+    body = <Spinner label="Loading interviews..." />
   } else {
-    const { upcoming, past } = result
-    body = (
-      <div className={loading ? 'dim' : undefined}>
-        <h2 className="section-title">Upcoming ({upcoming.length})</h2>
-        {upcoming.length === 0 ? (
-          <EmptyState title="No upcoming interviews"
-            message="Open an application and add an interview round to see it here." />
-        ) : (
-          <InterviewTable rows={upcoming} onEdit={setEditTarget} onDelete={setDeleteTarget} />
-        )}
+    // The API returns newest first. Upcoming is shown nearest first.
+    const isUpcoming = (i) => new Date(i.interviewDate).getTime() > result.fetchedAt
+    let shown = all
+    if (view === 'upcoming') shown = all.filter(isUpcoming).reverse()
+    else if (view === 'past') shown = all.filter((i) => !isUpcoming(i))
 
-        <h2 className="section-title">Past ({past.length})</h2>
-        {past.length === 0 ? (
-          <EmptyState title="No past interviews" message="Completed interviews will appear here." />
-        ) : (
-          <InterviewTable rows={past} onEdit={setEditTarget} onDelete={setDeleteTarget} />
-        )}
-      </div>
-    )
+    if (all.length === 0) {
+      body = (
+        <EmptyState title="No interviews yet"
+          message="Open an application and add an interview round from its details page.">
+          <Link to="/applications" className="btn btn-primary btn-sm">Go to applications</Link>
+        </EmptyState>
+      )
+    } else if (shown.length === 0) {
+      body = <EmptyState title={`No ${view} interviews`} message="Try another view." />
+    } else {
+      body = (
+        <div className="table-wrap">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Date and time</th>
+                <th>Company</th>
+                <th>Job</th>
+                <th>Round</th>
+                <th>Mode</th>
+                <th>Result</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {shown.map((i) => (
+                <tr key={i.id}>
+                  <td>{formatDateTime(i.interviewDate)}</td>
+                  <td>{i.companyName}</td>
+                  <td><Link to={`/applications/${i.applicationId}`}>{i.jobTitle}</Link></td>
+                  <td>{labelOf(INTERVIEW_ROUNDS, i.round)}</td>
+                  <td>{i.mode ? labelOf(INTERVIEW_MODES, i.mode) : '-'}</td>
+                  <td><ResultBadge result={i.result} /></td>
+                  <td>
+                    <div className="row-actions">
+                      <button className="link-btn" onClick={() => setEditing(i)}>Edit</button>
+                      <button className="link-btn danger" onClick={() => setToDelete(i)}>Delete</button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )
+    }
   }
 
   return (
     <div>
       <div className="page-header">
         <h1>Interviews</h1>
-        <p className="muted">All interview rounds across your applications.</p>
+        <p className="muted">Interviews are added from an application&apos;s details page.</p>
       </div>
 
-      <ErrorMessage message={pageError} />
-      {notice && <div className="alert alert-info" role="status">{notice}</div>}
+      <div className="tabs">
+        {VIEWS.map((v) => (
+          <button key={v.value} className={view === v.value ? 'tab active' : 'tab'}
+            onClick={() => setView(v.value)}>
+            {v.label}
+          </button>
+        ))}
+      </div>
+
+      <ErrorMessage message={deleteError} />
       {body}
 
-      {editTarget && (
-        <InterviewForm key={editTarget.id} interview={editTarget}
-          applicationId={editTarget.applicationId}
-          onSaved={handleSaved} onCancel={() => setEditTarget(null)} />
+      {editing && (
+        <InterviewFormModal interview={editing} onClose={() => setEditing(null)}
+          onSaved={() => { setEditing(null); reload() }} />
       )}
-
-      {deleteTarget && (
-        <ConfirmDialog title="Delete this interview?"
-          message={`${labelOf(INTERVIEW_ROUNDS, deleteTarget.round)} round at ${deleteTarget.companyName} will be removed. This cannot be undone.`}
+      {toDelete && (
+        <ConfirmDialog title="Delete this interview?" message="This cannot be undone."
           confirmLabel="Delete" busyLabel="Deleting..." busy={deleting}
-          onConfirm={handleDelete} onCancel={() => setDeleteTarget(null)} />
+          onConfirm={handleDelete} onCancel={() => setToDelete(null)} />
       )}
     </div>
   )

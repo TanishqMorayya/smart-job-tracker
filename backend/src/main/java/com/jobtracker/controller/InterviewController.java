@@ -46,6 +46,11 @@ public class InterviewController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/interviews")
+    public List<InterviewResponse> listAll(Authentication auth) {
+        return interviewService.listAll(auth.getName());
+    }
+
     @GetMapping("/interviews/upcoming")
     public List<InterviewResponse> upcoming(Authentication auth,
                                             @RequestParam(defaultValue = "10") int limit) {

@@ -62,6 +62,12 @@ public class InterviewService {
     }
 
     @Transactional(readOnly = true)
+    public List<InterviewResponse> listAll(String email) {
+        return interviewRepository.findAllForUser(userId(email))
+                .stream().map(InterviewResponse::from).toList();
+    }
+
+    @Transactional(readOnly = true)
     public List<InterviewResponse> upcoming(String email, int limit) {
         if (limit < 1 || limit > 50) {
             throw new BadRequestException("Limit must be between 1 and 50");
