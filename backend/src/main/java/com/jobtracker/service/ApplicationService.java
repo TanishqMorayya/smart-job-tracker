@@ -118,17 +118,6 @@ public class ApplicationService {
     }
 
     @Transactional(readOnly = true)
-    public java.util.List<ApplicationResponse> checkDuplicates(String email, Long companyId,
-                                                               String jobTitle, Long excludeId) {
-        if (jobTitle == null || jobTitle.isBlank()) {
-            return java.util.List.of();
-        }
-        return applicationRepository
-                .findDuplicates(userId(email), companyId, jobTitle, excludeId)
-                .stream().map(ApplicationResponse::from).toList();
-    }
-
-    @Transactional(readOnly = true)
     public ApplicationResponse get(String email, Long id) {
         return ApplicationResponse.from(findOwned(email, id));
     }
