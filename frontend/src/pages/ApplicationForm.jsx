@@ -1,9 +1,15 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { createApplication, getApplication, updateApplication } from '../api/applicationApi'
+import {
+  checkDuplicates,
+  createApplication,
+  getApplication,
+  updateApplication,
+} from '../api/applicationApi'
 import { listCompanies } from '../api/companyApi'
 import { parseError } from '../api/axiosClient'
 import CompanyPicker from '../components/applications/CompanyPicker'
+import DuplicateWarning from '../components/applications/DuplicateWarning'
 import FormField from '../components/common/FormField'
 import SelectField from '../components/common/SelectField'
 import TextAreaField from '../components/common/TextAreaField'
@@ -25,6 +31,7 @@ export default function ApplicationForm() {
   const [errors, setErrors] = useState({})
   const [serverError, setServerError] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [duplicates, setDuplicates] = useState(null) // null = no warning, otherwise the matching applications
 
   // Load the company list (and the application itself when editing).
   useEffect(() => {
@@ -57,13 +64,7 @@ export default function ApplicationForm() {
     setForm((f) => ({ ...f, companyId: String(company.id) }))
   }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setServerError('')
-    const found = validateForm(form)
-    setErrors(found)
-    if (Object.keys(found).length > 0) return
-
+  const save = async () => {
     setSubmitting(true)
     try {
       const payload = buildPayload(form, isEdit)
@@ -75,6 +76,7 @@ export default function ApplicationForm() {
       navigate('/applications')
     } catch (err) {
       const parsed = parseError(err)
+      setDuplicates(null)
       setServerError(parsed.message)
       const fieldErrors = { ...parsed.fieldErrors }
       if (fieldErrors.datesValid) {
@@ -85,6 +87,35 @@ export default function ApplicationForm() {
     } finally {
       setSubmitting(false)
     }
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setServerError('')
+    const found = validateForm(form)
+    setErrors(found)
+    if (Object.keys(found).length > 0) return
+
+    if (isEdit) {
+      await save()
+      return
+    }
+
+    // Adding: warn first if the same role at the same company already exists.
+    setSubmitting(true)
+    try {
+      const matches = await checkDuplicates(Number(form.companyId), form.jobTitle.trim())
+      if (matches.length > 0) {
+        setDuplicates(matches)
+        setSubmitting(false)
+        return
+      }
+    } catch (err) {
+      setServerError(parseError(err).message)
+      setSubmitting(false)
+      return
+    }
+    await save()
   }
 
   if (loading) return <Spinner label="Loading..." />
@@ -169,6 +200,11 @@ export default function ApplicationForm() {
           <Link to="/applications" className="btn btn-secondary btn-sm">Cancel</Link>
         </div>
       </form>
+
+      {duplicates && (
+        <DuplicateWarning matches={duplicates} busy={submitting} onConfirm={save}
+          onCancel={() => setDuplicates(null)} />
+      )}
     </div>
   )
 }

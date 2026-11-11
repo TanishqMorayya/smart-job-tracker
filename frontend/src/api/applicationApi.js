@@ -11,3 +11,5 @@ export const changeApplicationStatus = (id, payload) =>
   api.patch(`/applications/${id}/status`, payload).then((r) => r.data)
 export const deleteApplication = (id) => api.delete(`/applications/${id}`)
 export const getTimeline = (id) => api.get(`/applications/${id}/timeline`).then((r) => r.data)
+export const checkDuplicates = (companyId, jobTitle) =>
+  api.get('/applications/duplicates', { params: { companyId, jobTitle } }).then((r) => r.data)

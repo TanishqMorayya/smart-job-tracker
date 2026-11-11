@@ -62,4 +62,8 @@ public interface JobApplicationRepository
                                         @Param("companyId") Long companyId,
                                         @Param("jobTitle") String jobTitle,
                                         @Param("excludeId") Long excludeId);
+
+    // Same user, same company, same job title (case-insensitive): a possible duplicate.
+    List<JobApplication> findByUserIdAndCompanyIdAndJobTitleIgnoreCase(
+            Long userId, Long companyId, String jobTitle);
 }

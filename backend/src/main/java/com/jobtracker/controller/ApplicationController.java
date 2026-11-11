@@ -16,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/applications")
@@ -43,6 +44,13 @@ public class ApplicationController {
             @RequestParam(defaultValue = "10") int size) {
         return applicationService.list(auth.getName(), search, status, jobType, workMode,
                 location, from, to, sortBy, sortDir, page, size);
+    }
+
+    @GetMapping("/duplicates")
+    public List<ApplicationResponse> duplicates(Authentication auth,
+                                                @RequestParam(required = false) Long companyId,
+                                                @RequestParam(required = false) String jobTitle) {
+        return applicationService.findDuplicates(auth.getName(), companyId, jobTitle);
     }
 
     @PostMapping
