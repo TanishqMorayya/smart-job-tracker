@@ -50,7 +50,7 @@ public class ApplicationController {
     public List<ApplicationResponse> duplicates(Authentication auth,
                                                 @RequestParam(required = false) Long companyId,
                                                 @RequestParam(required = false) String jobTitle) {
-        return applicationService.findDuplicates(auth.getName(), companyId, jobTitle);
+        return applicationService.findPossibleDuplicates(auth.getName(), companyId, jobTitle);
     }
 
     @PostMapping

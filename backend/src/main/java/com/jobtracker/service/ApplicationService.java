@@ -216,4 +216,19 @@ public class ApplicationService {
     private String blankToNull(String s) {
         return (s == null || s.isBlank()) ? null : s.trim();
     }
+
+    // Warning only (not a block): same company and same title, ignoring case and extra spaces.
+    @Transactional(readOnly = true)
+    public java.util.List<ApplicationResponse> findPossibleDuplicates(String email, Long companyId, String jobTitle) {
+        String normalized = jobTitle == null ? "" : jobTitle.trim().replaceAll("\\s+", " ");
+        if (companyId == null || normalized.isEmpty()) {
+            throw new BadRequestException("companyId and jobTitle are required");
+        }
+        Long userId = userId(email);
+        // the company must belong to this user, otherwise 404
+        findOwnedCompany(userId, companyId);
+        return applicationRepository
+                .findByUserIdAndCompanyIdAndJobTitleIgnoreCase(userId, companyId, normalized)
+                .stream().map(ApplicationResponse::from).toList();
+    }
 }

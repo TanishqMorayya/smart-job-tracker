@@ -56,10 +56,4 @@ public class InterviewController {
                                             @RequestParam(defaultValue = "10") int limit) {
         return interviewService.upcoming(auth.getName(), limit);
     }
-
-    @GetMapping("/interviews/past")
-    public List<InterviewResponse> past(Authentication auth,
-                                        @RequestParam(defaultValue = "10") int limit) {
-        return interviewService.past(auth.getName(), limit);
-    }
 }
